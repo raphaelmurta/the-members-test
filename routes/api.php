@@ -1,6 +1,8 @@
 <?php
 
+use App\Events\EmailNotification;
 use App\Http\Controllers\AuthController;
+use App\Models\MailingList;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TopicController;
 use App\Http\Controllers\MailingListController;
@@ -19,14 +21,14 @@ Route::post('mailinglists/{id}/subscribe', [MailingListController::class, 'subsc
 
 //Rota de notificação
 Route::post('mailinglists/{id}/notify', function ($id, Request $request) {
-    $mailingList = \App\Models\MailingList::find($id);
+    $mailingList = MailingList::find($id);
     $message = $request->input('message');
 
     if (!$mailingList) {
         return response()->json(['message' => 'Lista de e-mail não encontrada.'], 404);
     }
 
-    event(new \App\Events\EmailNotification($mailingList, $message));
+    event(new EmailNotification($mailingList, $message));
 
     return response()->json(['message' => 'Notificações enviadas com sucesso.']);
 })->middleware('auth:sanctum');
